@@ -1,12 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [SAM Examples](#sam-examples)
+- [Default code structure with sam init](#default-code-structure-with-sam-init)
+  - [Drawbacks](#drawbacks)
+    - [AWS SAM does not support Typescript natively](#aws-sam-does-not-support-typescript-natively)
+    - [AWS SAM in its basic setup uploads artifacts which are unnecessarily big](#aws-sam-in-its-basic-setup-uploads-artifacts-which-are-unnecessarily-big)
+- [Using CodeUri and Layers](#using-codeuri-and-layers)
+  - [CodeUri property](#codeuri-property)
+  - [Lambda Layers](#lambda-layers)
+  - [Drawbacks](#drawbacks-1)
+- [SAM Beta CDK](#sam-beta-cdk)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SAM Examples
 This repository demonstrates how you can work with [AWS Serverless Application Model (SAM)](https://docs.aws.amazon.com/serverless-application-model/index.html) and **NodeJS**.
-
-[TOC]
 
 # Default code structure with sam init
 The [sam-init](./sam-init/README.md) subfolder in this repo shows how the default project structure looks like when you start your project with `sam init` of the AWS SAM CLI.
 
-<img src="assets/sam-init.png" alt="sam init" width="500"/>
+<img src="assets/sam-init.png" alt="sam init" width="600"/>
 
 ## Drawbacks
 For my team and me there were some drawbacks when you start like this without tweaking your environment manually:
@@ -31,7 +46,8 @@ Whoops. What happened?
 Even if the function itself does not do much or is very complex (38 SLOCs), the deployment package is too large.
 
 By inspecting the build of SAM you can see the problem:
-<img src="assets/sam_build_output.png" alt="SAM build output" width="250"/>
+
+<img src="assets/sam_build_output.png" alt="SAM build output" width="300"/>
 
 The whole project is included in each Lambda function, even if this is not necessary for the runtime execution of your function.
 
@@ -60,7 +76,7 @@ getByIdFunction:
 
 Let's see how this affects our build output:
 
-<img src="assets/sam_build_output_codeuri.png" alt="SAM build output" width="150"/>
+<img src="assets/sam_build_output_codeuri.png" alt="SAM build output" width="170"/>
 
 Now, using CodeUri, SAM just copies the contents of the specified folder. If this folder does not include a separate package.json, SAM does not install any dependencies.
 `getAllItemsFunction` is contained in a separate folder which includes a package.json. As you can see from the output, for this function there is a `node_modules` folder included, which will be deployed with your function.
@@ -133,7 +149,7 @@ npm run build
 sam-beta-cdk build --use-container -p -c
 ```
 
-<img src="assets/sam_build_output_cdk.png" alt="SAM Beta CDK build output" width="170"/>
+<img src="assets/sam_build_output_cdk.png" alt="SAM Beta CDK build output" width="200"/>
 
 Hmmm. Looks a bit the same, but additionally with the `*.ts` files included.
 
@@ -165,4 +181,4 @@ sam-beta-cdk build --use-container -p -c
 
 Finally that is what we wanted to achieve:
 
-<img src="assets/sam_build_output_cdk_node.png" alt="SAM Beta CDK NodeJs build output" width="200"/>
+<img src="assets/sam_build_output_cdk_node.png" alt="SAM Beta CDK NodeJs build output" width="220"/>
